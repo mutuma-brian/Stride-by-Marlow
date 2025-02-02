@@ -1,5 +1,6 @@
 import Link from "next/link"
-import { Facebook, Twitter, Instagram, Mail, Phone } from "lucide-react"
+import Image from "next/image"
+import { Facebook, Twitter, Instagram, Mail } from "lucide-react"
 
 export default function Footer() {
   const openSocialMedia = (platform: string) => {
@@ -18,6 +19,12 @@ export default function Footer() {
     window.open(url, "_blank")
   }
 
+  const openEmail = () => {
+    const subject = "Official Inquiry: Stride by Marlow"
+    const body = "Dear Stride by Marlow Team,\n\nI am writing to inquire about...\n\nBest regards,\n[Your Name]"
+    window.location.href = `mailto:info@stridemarlow.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+  }
+
   return (
     <footer className="bg-gray-900 text-white py-12">
       <div className="container mx-auto px-4">
@@ -28,24 +35,24 @@ export default function Footer() {
             <div className="flex space-x-4">
               <button
                 onClick={() => openSocialMedia("facebook")}
-                className="text-blue-500 hover:text-blue-400 transition-colors"
+                className="text-gray-400 hover:text-white transition-colors"
               >
-                <Facebook className="h-6 w-6" />
+                <Facebook className="h-5 w-5" />
               </button>
               <button
                 onClick={() => openSocialMedia("twitter")}
-                className="text-sky-500 hover:text-sky-400 transition-colors"
+                className="text-gray-400 hover:text-white transition-colors"
               >
-                <Twitter className="h-6 w-6" />
+                <Twitter className="h-5 w-5" />
               </button>
               <button
                 onClick={() => openSocialMedia("instagram")}
-                className="text-pink-500 hover:text-pink-400 transition-colors"
+                className="text-gray-400 hover:text-white transition-colors"
               >
-                <Instagram className="h-6 w-6" />
+                <Instagram className="h-5 w-5" />
               </button>
               <button onClick={() => openEmail()} className="text-gray-400 hover:text-white transition-colors">
-                <Mail className="h-6 w-6" />
+                <Mail className="h-5 w-5" />
               </button>
             </div>
           </div>
@@ -103,32 +110,11 @@ export default function Footer() {
             <h3 className="text-lg font-semibold mb-4">Contact Us</h3>
             <p className="text-gray-400 mb-2">Nairobi, Imenti House</p>
             <p className="text-gray-400 mb-2">First Floor, Stall No: A19</p>
-            <a
-              href="tel:+254714470576"
-              className="text-gray-400 hover:text-white transition-colors flex items-center mb-2"
-            >
-              <Phone className="h-4 w-4 mr-2" />
-              +254 714470576
-            </a>
-            <a
-              href="mailto:info@stridemarlow.com"
-              className="text-gray-400 hover:text-white transition-colors flex items-center mb-4"
-            >
-              <Mail className="h-4 w-4 mr-2" />
-              info@stridemarlow.com
-            </a>
+            <p className="text-gray-400 mb-2">Phone: +254 714470576</p>
+            <p className="text-gray-400">Email: info@stridemarlow.com</p>
             <h3 className="text-lg font-semibold mt-4 mb-2">Payment Details</h3>
             <div className="flex items-center space-x-2">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24" height="24">
-                <path
-                  fill="#4CAF50"
-                  d="M42,37c0,2.762-2.238,5-5,5H11c-2.761,0-5-2.238-5-5V11c0-2.762,2.239-5,5-5h26c2.762,0,5,2.238,5,5V37z"
-                />
-                <path
-                  fill="#FFF"
-                  d="M24,10c7.732,0,14,6.268,14,14s-6.268,14-14,14s-14-6.268-14-14S16.268,10,24,10 M24,17c-3.863,0-7,3.136-7,7c0,3.863,3.137,7,7,7s7-3.137,7-7C31,20.136,27.863,17,24,17"
-                />
-              </svg>
+              <Image src="/mpesa-icon.png" alt="M-Pesa" width={24} height={24} />
               <p className="text-gray-400">Paybill: 714777</p>
             </div>
             <p className="text-gray-400">Account No: 0714470576</p>
@@ -140,11 +126,5 @@ export default function Footer() {
       </div>
     </footer>
   )
-}
-
-const openEmail = () => {
-  const subject = "Official Inquiry: Stride by Marlow"
-  const body = "Dear Stride by Marlow Team,\n\nI am writing to inquire about...\n\nBest regards,\n[Your Name]"
-  window.location.href = `mailto:info@stridemarlow.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
 }
 

@@ -4,7 +4,7 @@ import { motion } from "framer-motion"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 
-export default function About() {
+export function About() {
   return (
     <section className="py-20 bg-white">
       <div className="container mx-auto px-4">

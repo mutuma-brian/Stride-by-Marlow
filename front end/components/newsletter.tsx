@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
 
-export default function Newsletter() {
+export function Newsletter() {
   const [email, setEmail] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()

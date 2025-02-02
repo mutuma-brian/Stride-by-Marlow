@@ -4,7 +4,6 @@ import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ChevronDown, ChevronUp } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
-import Image from "next/image"
 
 const faqs = [
   {
@@ -32,33 +31,26 @@ const faqs = [
     answer:
       "We accept M-PESA, credit/debit cards, and PayPal. For M-PESA payments, use our Paybill number 714777 and your order number as the account number.",
   },
+  {
+    question: "How do I know which size to order?",
+    answer:
+      "We provide a detailed size guide on our website. You can find it in the footer under 'Size Guide'. If you're still unsure, feel free to contact our customer service team for assistance.",
+  },
 ]
 
 export default function FAQContent() {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center mb-12">
-        <motion.div initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
-          <h1 className="text-4xl font-bold mb-4 text-orange-600">Frequently Asked Questions</h1>
-          <p className="text-gray-600">Find answers to common questions about our products and services.</p>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="relative h-64 md:h-full"
-        >
-          <Image
-            src="/faq-image.jpg"
-            alt="Stride by Marlow FAQ"
-            layout="fill"
-            objectFit="cover"
-            className="rounded-lg"
-          />
-        </motion.div>
-      </div>
+    <div className="max-w-3xl mx-auto">
+      <motion.h1
+        className="text-4xl font-bold mb-8 text-center text-orange-600"
+        initial={{ opacity: 0, y: -50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        Frequently Asked Questions
+      </motion.h1>
       <div className="space-y-4">
         {faqs.map((faq, index) => (
           <motion.div
