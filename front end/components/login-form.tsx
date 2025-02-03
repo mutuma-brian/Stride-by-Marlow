@@ -8,8 +8,10 @@ import * as z from "zod"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/components/ui/use-toast"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
+import { useUser } from "@/contexts/UserContext"
+import { useRouter } from "next/navigation"
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -26,6 +28,8 @@ export default function LoginForm() {
   } = useForm({
     resolver: zodResolver(loginSchema),
   })
+  const { login } = useUser()
+  const router = useRouter()
 
   const onSubmit = async (data: z.infer<typeof loginSchema>) => {
     setIsLoading(true)
@@ -33,11 +37,22 @@ export default function LoginForm() {
     console.log("Login data:", data)
     await new Promise((resolve) => setTimeout(resolve, 1000)) // Simulating API call
     setIsLoading(false)
-    toast({
-      title: "Login Successful",
-      description: "Welcome back to Stride by Marlow!",
-    })
-    window.dispatchEvent(new Event("login-success"))
+
+    // Dummy login logic
+    if (data.email === "user@example.com" && data.password === "password123") {
+      toast({
+        title: "Login Successful",
+        description: "Welcome back!",
+      })
+      login({ id: "1", name: "John Doe", email: data.email })
+      router.push("/")
+    } else {
+      toast({
+        title: "Login Failed",
+        description: "Invalid email or password",
+        variant: "destructive",
+      })
+    }
   }
 
   return (

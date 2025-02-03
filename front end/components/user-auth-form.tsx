@@ -25,11 +25,14 @@ export function UserAuthForm({ className, type, ...props }: UserAuthFormProps) {
     register,
     handleSubmit,
     formState: { errors },
+    watch,
   } = useForm<FormData>({
     resolver: zodResolver(userAuthSchema),
   })
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const searchParams = useSearchParams()
+
+  const password = watch("password")
 
   async function onSubmit(data: FormData) {
     setIsLoading(true)
@@ -68,6 +71,23 @@ export function UserAuthForm({ className, type, ...props }: UserAuthFormProps) {
     <div className={cn("grid gap-6", className)} {...props}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="grid gap-2">
+          {type === "register" && (
+            <div className="grid gap-1">
+              <Label className="sr-only" htmlFor="name">
+                Name
+              </Label>
+              <Input
+                id="name"
+                placeholder="Full Name"
+                type="text"
+                autoCapitalize="none"
+                autoCorrect="off"
+                disabled={isLoading}
+                {...register("name")}
+              />
+              {errors?.name && <p className="px-1 text-xs text-red-600">{errors.name.message}</p>}
+            </div>
+          )}
           <div className="grid gap-1">
             <Label className="sr-only" htmlFor="email">
               Email
@@ -84,6 +104,23 @@ export function UserAuthForm({ className, type, ...props }: UserAuthFormProps) {
             />
             {errors?.email && <p className="px-1 text-xs text-red-600">{errors.email.message}</p>}
           </div>
+          {type === "register" && (
+            <div className="grid gap-1">
+              <Label className="sr-only" htmlFor="phone">
+                Phone Number
+              </Label>
+              <Input
+                id="phone"
+                placeholder="Phone Number"
+                type="tel"
+                autoCapitalize="none"
+                autoCorrect="off"
+                disabled={isLoading}
+                {...register("phone")}
+              />
+              {errors?.phone && <p className="px-1 text-xs text-red-600">{errors.phone.message}</p>}
+            </div>
+          )}
           <div className="grid gap-1">
             <Label className="sr-only" htmlFor="password">
               Password
@@ -99,6 +136,24 @@ export function UserAuthForm({ className, type, ...props }: UserAuthFormProps) {
             />
             {errors?.password && <p className="px-1 text-xs text-red-600">{errors.password.message}</p>}
           </div>
+          {type === "register" && (
+            <div className="grid gap-1">
+              <Label className="sr-only" htmlFor="confirmPassword">
+                Confirm Password
+              </Label>
+              <Input
+                id="confirmPassword"
+                placeholder="Confirm Password"
+                type="password"
+                autoCapitalize="none"
+                disabled={isLoading}
+                {...register("confirmPassword", {
+                  validate: (value) => value === password || "The passwords do not match",
+                })}
+              />
+              {errors?.confirmPassword && <p className="px-1 text-xs text-red-600">{errors.confirmPassword.message}</p>}
+            </div>
+          )}
           <Button disabled={isLoading}>
             {isLoading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
             {type === "login" ? "Sign In" : "Sign Up"}

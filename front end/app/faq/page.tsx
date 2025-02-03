@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Navbar } from "@/components/navbar"
 import Footer from "@/components/footer"
+import { Card, CardContent } from "@/components/ui/card"
 
 export const metadata: Metadata = {
   title: "FAQ | Stride by Marlow",
@@ -55,16 +56,20 @@ export default function FAQPage() {
   return (
     <>
       <Navbar />
-      <main className="container mx-auto px-4 py-16">
-        <h1 className="text-3xl font-bold text-center mb-8">Frequently Asked Questions</h1>
-        <Accordion type="single" collapsible className="w-full max-w-3xl mx-auto">
-          {faqs.map((faq, index) => (
-            <AccordionItem key={index} value={`item-${index}`}>
-              <AccordionTrigger>{faq.question}</AccordionTrigger>
-              <AccordionContent>{faq.answer}</AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
+      <main className="container mx-auto px-4 py-24">
+        <h1 className="text-4xl font-bold text-center mb-12">Frequently Asked Questions</h1>
+        <Card className="w-full max-w-3xl mx-auto bg-gradient-to-br from-orange-100 to-white shadow-lg">
+          <CardContent className="p-6">
+            <Accordion type="single" collapsible className="w-full">
+              {faqs.map((faq, index) => (
+                <AccordionItem key={index} value={`item-${index}`}>
+                  <AccordionTrigger className="text-lg font-semibold text-orange-600">{faq.question}</AccordionTrigger>
+                  <AccordionContent className="text-gray-700">{faq.answer}</AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </CardContent>
+        </Card>
       </main>
       <Footer />
     </>

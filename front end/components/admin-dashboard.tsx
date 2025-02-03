@@ -1,19 +1,24 @@
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+"use client"
+
+import { useState } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { AdminSidebar } from "@/components/admin-sidebar"
 import {
   BarChart,
   Bar,
   LineChart,
   Line,
+  PieChart,
+  Pie,
+  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   Legend,
   ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
 } from "recharts"
 
 const salesData = [
@@ -25,127 +30,149 @@ const salesData = [
   { name: "Jun", sales: 5500 },
 ]
 
-const productData = [
-  { name: "Nike Air Max", value: 400 },
-  { name: "Adidas Ultraboost", value: 300 },
-  { name: "Puma RS-X", value: 300 },
-  { name: "Reebok Classic", value: 200 },
-]
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"]
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"]
+export function AdminDashboard() {
+  const [chartType, setChartType] = useState("bar")
 
-export default function AdminDashboard() {
+  const totalSales = salesData.reduce((sum, item) => sum + item.sales, 0)
+
+  const renderChart = () => {
+    switch (chartType) {
+      case "bar":
+        return (
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={salesData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="sales" fill="#8884d8" />
+            </BarChart>
+          </ResponsiveContainer>
+        )
+      case "line":
+        return (
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={salesData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line type="monotone" dataKey="sales" stroke="#8884d8" />
+            </LineChart>
+          </ResponsiveContainer>
+        )
+      case "pie":
+        return (
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie data={salesData} cx="50%" cy="50%" labelLine={false} outerRadius={80} fill="#8884d8" dataKey="sales">
+                {salesData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        )
+      default:
+        return null
+    }
+  }
+
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Sales</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">KES 1,234,567</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Orders</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">1,234</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Customers</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">5,678</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Avg. Order Value</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">KES 2,500</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Tabs defaultValue="sales" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="sales">Sales Overview</TabsTrigger>
-          <TabsTrigger value="products">Top Products</TabsTrigger>
-          <TabsTrigger value="customers">Customer Growth</TabsTrigger>
-        </TabsList>
-        <TabsContent value="sales" className="space-y-4">
+    <div className="flex h-screen bg-gray-100">
+      <AdminSidebar />
+      <main className="flex-1 overflow-y-auto p-8">
+        <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <Card>
-            <CardHeader>
-              <CardTitle>Monthly Sales</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Sales</CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={salesData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="sales" fill="#8884d8" />
-                </BarChart>
-              </ResponsiveContainer>
+              <div className="text-2xl font-bold">KES {totalSales.toLocaleString()}</div>
             </CardContent>
           </Card>
-        </TabsContent>
-        <TabsContent value="products" className="space-y-4">
           <Card>
-            <CardHeader>
-              <CardTitle>Top Selling Products</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Average Order Value</CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={productData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {productData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
+              <div className="text-2xl font-bold">KES {(totalSales / salesData.length).toLocaleString()}</div>
             </CardContent>
           </Card>
-        </TabsContent>
-        <TabsContent value="customers" className="space-y-4">
           <Card>
-            <CardHeader>
-              <CardTitle>Customer Growth</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={salesData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Line type="monotone" dataKey="sales" stroke="#8884d8" />
-                </LineChart>
-              </ResponsiveContainer>
+              <div className="text-2xl font-bold">{salesData.length}</div>
             </CardContent>
           </Card>
-        </TabsContent>
-      </Tabs>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Conversion Rate</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">3.2%</div>
+            </CardContent>
+          </Card>
+        </div>
+        <Card className="mt-6">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Sales Overview</CardTitle>
+              <Select value={chartType} onValueChange={setChartType}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select chart type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="bar">Bar Chart</SelectItem>
+                  <SelectItem value="line">Line Chart</SelectItem>
+                  <SelectItem value="pie">Pie Chart</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardHeader>
+          <CardContent>{renderChart()}</CardContent>
+        </Card>
+        <Tabs defaultValue="invoices" className="mt-6">
+          <TabsList>
+            <TabsTrigger value="invoices">Invoices</TabsTrigger>
+            <TabsTrigger value="customers">Customers</TabsTrigger>
+            <TabsTrigger value="inventory">Inventory</TabsTrigger>
+          </TabsList>
+          <TabsContent value="invoices">
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Invoices</CardTitle>
+              </CardHeader>
+              <CardContent>{/* Add a table or list of recent invoices here */}</CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="customers">
+            <Card>
+              <CardHeader>
+                <CardTitle>Top Customers</CardTitle>
+              </CardHeader>
+              <CardContent>{/* Add a list or chart of top customers here */}</CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="inventory">
+            <Card>
+              <CardHeader>
+                <CardTitle>Low Stock Items</CardTitle>
+              </CardHeader>
+              <CardContent>{/* Add a list of low stock items here */}</CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </main>
     </div>
   )
 }

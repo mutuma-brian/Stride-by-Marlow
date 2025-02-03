@@ -8,8 +8,9 @@ import * as z from "zod"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/components/ui/use-toast"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
+import { useRouter } from "next/navigation"
 
 const registerSchema = z
   .object({
@@ -34,6 +35,7 @@ export default function RegisterForm() {
   } = useForm({
     resolver: zodResolver(registerSchema),
   })
+  const router = useRouter()
 
   const onSubmit = async (data: z.infer<typeof registerSchema>) => {
     setIsLoading(true)
@@ -43,8 +45,9 @@ export default function RegisterForm() {
     setIsLoading(false)
     toast({
       title: "Registration Successful",
-      description: "Welcome to Stride by Marlow! Please check your email to verify your account.",
+      description: "Please log in with your new account.",
     })
+    router.push("/login")
   }
 
   return (

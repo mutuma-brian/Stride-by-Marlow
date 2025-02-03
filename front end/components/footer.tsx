@@ -110,8 +110,18 @@ export default function Footer() {
             <h3 className="text-lg font-semibold mb-4">Contact Us</h3>
             <p className="text-gray-400 mb-2">Nairobi, Imenti House</p>
             <p className="text-gray-400 mb-2">First Floor, Stall No: A19</p>
-            <p className="text-gray-400 mb-2">Phone: +254 714470576</p>
-            <p className="text-gray-400">Email: info@stridemarlow.com</p>
+            <p className="text-gray-400 mb-2">
+              Phone:{" "}
+              <a href="tel:+254714470576" className="hover:text-white transition-colors">
+                +254 714470576
+              </a>
+            </p>
+            <p className="text-gray-400">
+              Email:{" "}
+              <a href="mailto:info@stridemarlow.com" className="hover:text-white transition-colors">
+                info@stridemarlow.com
+              </a>
+            </p>
             <h3 className="text-lg font-semibold mt-4 mb-2">Payment Details</h3>
             <div className="flex items-center space-x-2">
               <Image src="/mpesa-icon.png" alt="M-Pesa" width={24} height={24} />

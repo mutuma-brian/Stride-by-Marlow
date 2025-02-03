@@ -9,6 +9,8 @@ import { libreFranklin } from "@/app/fonts"
 import { motion, AnimatePresence } from "framer-motion"
 import { useToast } from "@/components/ui/use-toast"
 import { useRouter } from "next/navigation"
+import { Badge } from "@/components/ui/badge"
+import { useUser } from "@/contexts/UserContext"
 
 const navItems = [
   { name: "Home", href: "/" },
@@ -21,7 +23,8 @@ const navItems = [
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const { user, cart, logout } = useUser()
+  const [cartCount, setCartCount] = useState(0)
   const { toast } = useToast()
   const router = useRouter()
 
@@ -34,7 +37,7 @@ export function Navbar() {
   }, [])
 
   const handleCartClick = () => {
-    if (!isLoggedIn) {
+    if (!user) {
       router.push("/login")
     } else {
       router.push("/cart")
@@ -71,17 +74,21 @@ export function Navbar() {
             ))}
           </div>
           <div className="hidden md:flex items-center space-x-4">
-            {isLoggedIn && (
+            <Link href="/cart">
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-orange-500 hover:text-orange-600 transition-colors duration-300"
-                onClick={handleCartClick}
+                className="relative text-orange-500 hover:text-orange-600 transition-colors duration-300"
               >
-                <ShoppingCart size={24} />
+                <ShoppingCart size={28} />
+                {cart.length > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                    {cart.reduce((total, item) => total + item.quantity, 0)}
+                  </span>
+                )}
               </Button>
-            )}
-            {isLoggedIn ? (
+            </Link>
+            {user ? (
               <Link href="/profile">
                 <Button
                   className={cn(
@@ -90,6 +97,7 @@ export function Navbar() {
                     "hover:scale-105",
                   )}
                 >
+                  <User className="mr-2 h-4 w-4" />
                   Profile
                 </Button>
               </Link>
@@ -149,21 +157,30 @@ export function Navbar() {
                   {item.name}
                 </Link>
               ))}
-              <Button
-                className={`${libreFranklin.className} bg-gradient-to-r from-orange-500 via-white to-orange-500 text-orange-600 hover:from-orange-600 hover:via-white hover:to-orange-600 transition-colors w-full`}
-                onClick={() => {
-                  setIsOpen(false)
-                  handleCartClick()
-                }}
-              >
-                Cart
-              </Button>
-              {isLoggedIn ? (
+              <Link href="/cart">
+                <Button
+                  className={`${libreFranklin.className} bg-gradient-to-r from-orange-500 via-white to-orange-500 text-orange-600 hover:from-orange-600 hover:via-white hover:to-orange-600 transition-colors w-full`}
+                  onClick={() => {
+                    setIsOpen(false)
+                    //handleCartClick()
+                  }}
+                >
+                  <ShoppingCart className="mr-2 h-4 w-4" />
+                  Cart
+                  {cart.length > 0 && (
+                    <Badge variant="destructive" className="ml-2">
+                      {cart.reduce((total, item) => total + item.quantity, 0)}
+                    </Badge>
+                  )}
+                </Button>
+              </Link>
+              {user ? (
                 <Link href="/profile">
                   <Button
                     className={`${libreFranklin.className} bg-gradient-to-r from-orange-500 via-white to-orange-500 text-orange-600 hover:from-orange-600 hover:via-white hover:to-orange-600 transition-colors w-full`}
                     onClick={() => setIsOpen(false)}
                   >
+                    <User className="mr-2 h-4 w-4" />
                     Profile
                   </Button>
                 </Link>
