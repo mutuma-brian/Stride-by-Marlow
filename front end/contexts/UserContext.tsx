@@ -131,5 +131,4 @@ export const useUser = () => {
   return context
 }
 
-export { UserProvider }
 
