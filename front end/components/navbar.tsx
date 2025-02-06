@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Menu, X, ShoppingCart } from "lucide-react"
+import { Menu, X, ShoppingCart, User, LogOut, Package, CreditCard, Settings } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { libreFranklin } from "@/app/fonts"
@@ -11,20 +11,26 @@ import { useToast } from "@/components/ui/use-toast"
 import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { useUser } from "@/contexts/UserContext"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 const navItems = [
   { name: "Home", href: "/" },
   { name: "Shop", href: "/shop" },
   { name: "About", href: "/about" },
   { name: "Contact", href: "/contact" },
-  { name: "FAQ", href: "/faq" },
 ]
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const { user, cart, logout } = useUser()
-  const [cartCount, setCartCount] = useState(0)
   const { toast } = useToast()
   const router = useRouter()
 
@@ -42,6 +48,11 @@ export function Navbar() {
     } else {
       router.push("/cart")
     }
+  }
+
+  const handleLogout = () => {
+    logout()
+    router.push("/")
   }
 
   return (
@@ -74,33 +85,46 @@ export function Navbar() {
             ))}
           </div>
           <div className="hidden md:flex items-center space-x-4">
-            <Link href="/cart">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="relative text-orange-500 hover:text-orange-600 transition-colors duration-300"
-              >
-                <ShoppingCart size={28} />
-                {cart.length > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                    {cart.reduce((total, item) => total + item.quantity, 0)}
-                  </span>
-                )}
-              </Button>
-            </Link>
             {user ? (
-              <Link href="/profile">
-                <Button
-                  className={cn(
-                    `${libreFranklin.className} bg-gradient-to-r from-orange-500 via-white to-orange-500 text-orange-600 hover:from-orange-600 hover:via-white hover:to-orange-600 transition-all duration-300`,
-                    !isScrolled && "bg-white/10 backdrop-blur-sm hover:bg-white/20",
-                    "hover:scale-105",
-                  )}
-                >
-                  <User className="mr-2 h-4 w-4" />
-                  Profile
-                </Button>
-              </Link>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    className={cn(
+                      `${libreFranklin.className} bg-gradient-to-r from-orange-500 via-white to-orange-500 text-orange-600 hover:from-orange-600 hover:via-white hover:to-orange-600 transition-all duration-300`,
+                      !isScrolled && "bg-white/10 backdrop-blur-sm hover:bg-white/20",
+                      "hover:scale-105",
+                    )}
+                  >
+                    <User className="mr-2 h-4 w-4" />
+                    {user.name}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => router.push("/profile")}>
+                    <User className="mr-2 h-4 w-4" />
+                    Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push("/orders")}>
+                    <Package className="mr-2 h-4 w-4" />
+                    Orders
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push("/payment")}>
+                    <CreditCard className="mr-2 h-4 w-4" />
+                    Payment Methods
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push("/settings")}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <>
                 <Link href="/login">
@@ -127,6 +151,19 @@ export function Navbar() {
                 </Link>
               </>
             )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative text-orange-500 hover:text-orange-600 transition-colors duration-300"
+              onClick={handleCartClick}
+            >
+              <ShoppingCart size={48} className="text-orange-500 fill-orange-500 stroke-white" />
+              {cart.length > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">
+                  {cart.reduce((total, item) => total + item.quantity, 0)}
+                </span>
+              )}
+            </Button>
           </div>
           <button
             className="md:hidden text-orange-500 transition-transform duration-300 hover:scale-110"
@@ -162,7 +199,7 @@ export function Navbar() {
                   className={`${libreFranklin.className} bg-gradient-to-r from-orange-500 via-white to-orange-500 text-orange-600 hover:from-orange-600 hover:via-white hover:to-orange-600 transition-colors w-full`}
                   onClick={() => {
                     setIsOpen(false)
-                    //handleCartClick()
+                    handleCartClick()
                   }}
                 >
                   <ShoppingCart className="mr-2 h-4 w-4" />
@@ -175,15 +212,27 @@ export function Navbar() {
                 </Button>
               </Link>
               {user ? (
-                <Link href="/profile">
+                <>
+                  <Link href="/profile">
+                    <Button
+                      className={`${libreFranklin.className} bg-gradient-to-r from-orange-500 via-white to-orange-500 text-orange-600 hover:from-orange-600 hover:via-white hover:to-orange-600 transition-colors w-full`}
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <User className="mr-2 h-4 w-4" />
+                      Profile
+                    </Button>
+                  </Link>
                   <Button
                     className={`${libreFranklin.className} bg-gradient-to-r from-orange-500 via-white to-orange-500 text-orange-600 hover:from-orange-600 hover:via-white hover:to-orange-600 transition-colors w-full`}
-                    onClick={() => setIsOpen(false)}
+                    onClick={() => {
+                      setIsOpen(false)
+                      handleLogout()
+                    }}
                   >
-                    <User className="mr-2 h-4 w-4" />
-                    Profile
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Logout
                   </Button>
-                </Link>
+                </>
               ) : (
                 <>
                   <Link href="/login">

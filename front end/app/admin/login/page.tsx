@@ -1,28 +1,35 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
+import { useUser } from "@/contexts/UserContext"
 
 export default function AdminLoginPage() {
-  const [username, setUsername] = useState("")
+  const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const router = useRouter()
   const { toast } = useToast()
+  const { user, login } = useUser()
+
+  useEffect(() => {
+    if (user && user.role === "admin") {
+      router.push("/admin/dashboard")
+    }
+  }, [user, router])
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
-    // In a real application, you would validate credentials against a backend
-    if (username === "admin" && password === "password") {
-      localStorage.setItem("adminLoggedIn", "true")
+    const success = login(email, password)
+    if (success) {
       router.push("/admin/dashboard")
     } else {
       toast({
         title: "Login Failed",
-        description: "Invalid username or password",
+        description: "Invalid email or password",
         variant: "destructive",
       })
     }
@@ -35,23 +42,25 @@ export default function AdminLoginPage() {
           <CardTitle className="text-2xl font-bold text-center">Admin Login</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-2">
-              <Input
-                id="username"
-                placeholder="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Input
-                id="password"
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+          <form onSubmit={handleLogin}>
+            <div className="grid w-full items-center gap-4">
+              <div className="flex flex-col space-y-1.5">
+                <Input
+                  id="email"
+                  placeholder="admin@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+              <div className="flex flex-col space-y-1.5">
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="password123"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
             </div>
           </form>
         </CardContent>

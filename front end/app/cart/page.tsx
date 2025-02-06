@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation"
 import { useToast } from "@/components/ui/use-toast"
 
 export default function CartPage() {
-  const { cart, removeFromCart, clearCart } = useUser()
+  const { cart, removeFromCart, clearCart, updateQuantity } = useUser()
   const [isCheckingOut, setIsCheckingOut] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
@@ -59,9 +59,17 @@ export default function CartPage() {
                   {cart.map((item) => (
                     <TableRow key={item.id}>
                       <TableCell>{item.name}</TableCell>
-                      <TableCell>{item.quantity}</TableCell>
-                      <TableCell>${item.price.toFixed(2)}</TableCell>
-                      <TableCell>${(item.price * item.quantity).toFixed(2)}</TableCell>
+                      <TableCell>
+                        <input
+                          type="number"
+                          min="1"
+                          value={item.quantity}
+                          onChange={(e) => updateQuantity(item.id, Number.parseInt(e.target.value))}
+                          className="w-16 p-1 border rounded"
+                        />
+                      </TableCell>
+                      <TableCell>KES {item.price.toFixed(2)}</TableCell>
+                      <TableCell>KES {(item.price * item.quantity).toFixed(2)}</TableCell>
                       <TableCell>
                         <Button variant="destructive" size="sm" onClick={() => removeFromCart(item.id)}>
                           Remove
@@ -73,7 +81,7 @@ export default function CartPage() {
               </Table>
             </CardContent>
             <CardFooter className="flex justify-between">
-              <div className="text-xl font-bold">Total: ${total.toFixed(2)}</div>
+              <div className="text-xl font-bold">Total: KES {total.toFixed(2)}</div>
               <Button onClick={handleCheckout} disabled={isCheckingOut}>
                 {isCheckingOut ? "Processing..." : "Checkout"}
               </Button>

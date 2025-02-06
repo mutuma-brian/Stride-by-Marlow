@@ -1,6 +1,6 @@
 # Stride by Marlow E-commerce Platform
 
-This is an e-commerce platform for Stride by Marlow, a premium sneaker retailer.
+Stride by Marlow is a premium sneaker retailer e-commerce platform built with Next.js, React, and Tailwind CSS.
 
 ## Getting Started
 

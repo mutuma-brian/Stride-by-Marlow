@@ -1,18 +1,25 @@
 "use client"
 
 import * as React from "react"
-import { useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import type * as z from "zod"
+import * as z from "zod"
 
 import { cn } from "@/lib/utils"
-import { userAuthSchema } from "@/lib/validations/auth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "@/components/ui/use-toast"
 import { Icons } from "@/components/icons"
+import { useUser } from "@/contexts/UserContext"
+
+const userAuthSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters").optional(),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  confirmPassword: z.string().optional(),
+})
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
   type: "login" | "register"
@@ -30,40 +37,55 @@ export function UserAuthForm({ className, type, ...props }: UserAuthFormProps) {
     resolver: zodResolver(userAuthSchema),
   })
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
-  const searchParams = useSearchParams()
+  const router = useRouter()
+  const { login, register: registerUser } = useUser()
 
   const password = watch("password")
 
   async function onSubmit(data: FormData) {
     setIsLoading(true)
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    setIsLoading(false)
-
-    if (type === "login") {
-      // Dummy login logic
-      if (data.email === "user@example.com" && data.password === "password123") {
-        toast({
-          title: "Login Successful",
-          description: "Welcome back!",
-        })
-        // Redirect to dashboard or home page
+    try {
+      if (type === "login") {
+        const success = await login(data.email, data.password)
+        if (success) {
+          toast({
+            title: "Login Successful",
+            description: "Welcome back!",
+          })
+          router.push("/")
+        } else {
+          toast({
+            title: "Login Failed",
+            description: "Invalid email or password",
+            variant: "destructive",
+          })
+        }
       } else {
+        if (data.password !== data.confirmPassword) {
+          toast({
+            title: "Registration Failed",
+            description: "Passwords do not match",
+            variant: "destructive",
+          })
+          setIsLoading(false)
+          return
+        }
+        await registerUser(data)
         toast({
-          title: "Login Failed",
-          description: "Invalid email or password",
-          variant: "destructive",
+          title: "Registration Successful",
+          description: "Please log in with your new account.",
         })
+        router.push("/login")
       }
-    } else {
-      // Dummy register logic
+    } catch (error) {
       toast({
-        title: "Registration Successful",
-        description: "Please check your email to verify your account.",
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
       })
-      // Redirect to login page or home page
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -73,9 +95,7 @@ export function UserAuthForm({ className, type, ...props }: UserAuthFormProps) {
         <div className="grid gap-2">
           {type === "register" && (
             <div className="grid gap-1">
-              <Label className="sr-only" htmlFor="name">
-                Name
-              </Label>
+              <Label htmlFor="name">Name</Label>
               <Input
                 id="name"
                 placeholder="Full Name"
@@ -83,15 +103,13 @@ export function UserAuthForm({ className, type, ...props }: UserAuthFormProps) {
                 autoCapitalize="none"
                 autoCorrect="off"
                 disabled={isLoading}
-                {...register("name")}
+                {...register("name", { required: "Name is required" })}
               />
               {errors?.name && <p className="px-1 text-xs text-red-600">{errors.name.message}</p>}
             </div>
           )}
           <div className="grid gap-1">
-            <Label className="sr-only" htmlFor="email">
-              Email
-            </Label>
+            <Label htmlFor="email">Email</Label>
             <Input
               id="email"
               placeholder="name@example.com"
@@ -100,31 +118,12 @@ export function UserAuthForm({ className, type, ...props }: UserAuthFormProps) {
               autoComplete="email"
               autoCorrect="off"
               disabled={isLoading}
-              {...register("email")}
+              {...register("email", { required: "Email is required" })}
             />
             {errors?.email && <p className="px-1 text-xs text-red-600">{errors.email.message}</p>}
           </div>
-          {type === "register" && (
-            <div className="grid gap-1">
-              <Label className="sr-only" htmlFor="phone">
-                Phone Number
-              </Label>
-              <Input
-                id="phone"
-                placeholder="Phone Number"
-                type="tel"
-                autoCapitalize="none"
-                autoCorrect="off"
-                disabled={isLoading}
-                {...register("phone")}
-              />
-              {errors?.phone && <p className="px-1 text-xs text-red-600">{errors.phone.message}</p>}
-            </div>
-          )}
           <div className="grid gap-1">
-            <Label className="sr-only" htmlFor="password">
-              Password
-            </Label>
+            <Label htmlFor="password">Password</Label>
             <Input
               id="password"
               placeholder="Password"
@@ -132,15 +131,13 @@ export function UserAuthForm({ className, type, ...props }: UserAuthFormProps) {
               autoCapitalize="none"
               autoComplete="current-password"
               disabled={isLoading}
-              {...register("password")}
+              {...register("password", { required: "Password is required" })}
             />
             {errors?.password && <p className="px-1 text-xs text-red-600">{errors.password.message}</p>}
           </div>
           {type === "register" && (
             <div className="grid gap-1">
-              <Label className="sr-only" htmlFor="confirmPassword">
-                Confirm Password
-              </Label>
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
               <Input
                 id="confirmPassword"
                 placeholder="Confirm Password"
@@ -148,6 +145,7 @@ export function UserAuthForm({ className, type, ...props }: UserAuthFormProps) {
                 autoCapitalize="none"
                 disabled={isLoading}
                 {...register("confirmPassword", {
+                  required: "Please confirm your password",
                   validate: (value) => value === password || "The passwords do not match",
                 })}
               />

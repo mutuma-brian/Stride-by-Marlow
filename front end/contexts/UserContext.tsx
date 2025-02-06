@@ -1,7 +1,7 @@
 "use client"
 
-import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
+import { useToast } from "@/components/ui/use-toast"
 
 type CartItem = {
   id: number
@@ -14,16 +14,19 @@ type User = {
   id: string
   name: string
   email: string
+  role: "user" | "admin"
 }
 
 type UserContextType = {
   user: User | null
-  login: (user: User) => void
+  login: (email: string, password: string) => Promise<boolean>
   logout: () => void
+  register: (data: any) => Promise<boolean>
   cart: CartItem[]
   addToCart: (item: CartItem) => void
   removeFromCart: (itemId: number) => void
   clearCart: () => void
+  updateQuantity: (itemId: number, quantity: number) => void
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined)
@@ -31,6 +34,40 @@ const UserContext = createContext<UserContextType | undefined>(undefined)
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null)
   const [cart, setCart] = useState<CartItem[]>([])
+  const { toast } = useToast()
+
+  const dummyUsers = [
+    { id: "1", name: "Admin User", email: "admin@example.com", password: "admin123", role: "admin" as const },
+    { id: "2", name: "John Doe", email: "user@example.com", password: "user123", role: "user" as const },
+  ]
+
+  const login = async (email: string, password: string) => {
+    const user = dummyUsers.find((u) => u.email === email && u.password === password)
+    if (user) {
+      const { password, ...userWithoutPassword } = user
+      setUser(userWithoutPassword)
+      localStorage.setItem("user", JSON.stringify(userWithoutPassword))
+      return true
+    }
+    return false
+  }
+
+  const logout = () => {
+    setUser(null)
+    localStorage.removeItem("user")
+    clearCart()
+  }
+
+  const register = async (data: any) => {
+    const newUser = {
+      id: (dummyUsers.length + 1).toString(),
+      name: data.name,
+      email: data.email,
+      role: "user" as const,
+    }
+    dummyUsers.push({ ...newUser, password: data.password })
+    return true
+  }
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user")
@@ -43,16 +80,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [])
 
-  const login = (userData: User) => {
-    setUser(userData)
-    localStorage.setItem("user", JSON.stringify(userData))
-  }
-
-  const logout = () => {
-    setUser(null)
-    localStorage.removeItem("user")
-  }
-
   const addToCart = (item: CartItem) => {
     setCart((prevCart) => {
       const existingItem = prevCart.find((cartItem) => cartItem.id === item.id)
@@ -62,6 +89,10 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         )
       }
       return [...prevCart, { ...item, quantity: 1 }]
+    })
+    toast({
+      title: "Added to Cart",
+      description: `${item.name} has been added to your cart.`,
     })
   }
 
@@ -73,12 +104,20 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setCart([])
   }
 
+  const updateQuantity = (itemId: number, quantity: number) => {
+    setCart((prevCart) =>
+      prevCart.map((item) => (item.id === itemId ? { ...item, quantity: Math.max(0, quantity) } : item)),
+    )
+  }
+
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart))
   }, [cart])
 
   return (
-    <UserContext.Provider value={{ user, login, logout, cart, addToCart, removeFromCart, clearCart }}>
+    <UserContext.Provider
+      value={{ user, login, logout, register, cart, addToCart, removeFromCart, clearCart, updateQuantity }}
+    >
       {children}
     </UserContext.Provider>
   )
@@ -91,4 +130,6 @@ export const useUser = () => {
   }
   return context
 }
+
+export { UserProvider }
 

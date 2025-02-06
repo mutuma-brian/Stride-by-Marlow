@@ -3,9 +3,13 @@
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
+import { useUser } from "@/contexts/UserContext"
+import { useRouter } from "next/navigation"
 
 export function Hero() {
   const [offset, setOffset] = useState(0)
+  const { user } = useUser()
+  const router = useRouter()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -14,6 +18,14 @@ export function Hero() {
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
+
+  const handleShopNowClick = () => {
+    if (user) {
+      router.push("/products")
+    } else {
+      router.push("/login")
+    }
+  }
 
   return (
     <section className="relative h-screen overflow-hidden">
@@ -40,7 +52,11 @@ export function Hero() {
           <p className="text-lg md:text-xl text-white/80 max-w-xl">
             Discover the perfect blend of comfort and fashion with our premium sneaker collection.
           </p>
-          <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90">
+          <Button
+            size="lg"
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
+            onClick={handleShopNowClick}
+          >
             Shop Now
           </Button>
         </motion.div>

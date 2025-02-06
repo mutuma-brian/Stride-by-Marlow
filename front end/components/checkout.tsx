@@ -1,97 +1,96 @@
 "use client"
 
 import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { useUser } from "@/contexts/UserContext"
+import { useRouter } from "next/navigation"
+import { useToast } from "@/components/ui/use-toast"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useToast } from "@/components/ui/use-toast"
-
-const checkoutSchema = z.object({
-  fullName: z.string().min(2, "Full name is required"),
-  email: z.string().email("Invalid email address"),
-  phoneNumber: z
-    .string()
-    .regex(/^(?:254|\+254|0)?(7(?:(?:[129][0-9])|(?:0[0-8])|(4[0-1]))[0-9]{6})$/, "Invalid Kenyan phone number"),
-  amount: z
-    .string()
-    .min(1, "Amount is required")
-    .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
-      message: "Amount must be a positive number",
-    }),
-})
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
 export default function Checkout() {
-  const [isLoading, setIsLoading] = useState(false)
+  const { cart, clearCart } = useUser()
+  const [mpesaNumber, setMpesaNumber] = useState("")
+  const router = useRouter()
   const { toast } = useToast()
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    resolver: zodResolver(checkoutSchema),
-  })
 
-  const onSubmit = async (data: z.infer<typeof checkoutSchema>) => {
-    setIsLoading(true)
-    // Here you would typically send the data to your backend for M-Pesa processing
-    console.log("Checkout data:", data)
-    await new Promise((resolve) => setTimeout(resolve, 2000)) // Simulating API call
+  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
-    // Simulating M-Pesa confirmation
-    const confirmationResult = Math.random() < 0.8 // 80% success rate for simulation
-
-    setIsLoading(false)
-
-    if (confirmationResult) {
+  const handleCheckout = async () => {
+    if (!mpesaNumber) {
       toast({
-        title: "Payment Successful",
-        description: "Your order has been placed successfully!",
-      })
-    } else {
-      toast({
-        title: "Payment Failed",
-        description: "There was an issue processing your payment. Please try again.",
+        title: "Error",
+        description: "Please enter your M-Pesa number",
         variant: "destructive",
       })
+      return
     }
+
+    // Simulate M-Pesa payment process
+    toast({
+      title: "Processing Payment",
+      description: "Please wait while we process your payment...",
+    })
+
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 3000))
+
+    // Simulate successful payment
+    clearCart()
+    toast({
+      title: "Payment Successful",
+      description: "Your order has been placed successfully!",
+    })
+    router.push("/")
   }
 
   return (
     <Card className="w-full max-w-3xl mx-auto">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold">Checkout</CardTitle>
+        <CardTitle>Checkout</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="fullName">Full Name</Label>
-            <Input id="fullName" {...register("fullName")} />
-            {errors.fullName && <p className="text-red-500 text-sm">{errors.fullName.message}</p>}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" {...register("email")} />
-            {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="phoneNumber">M-Pesa Phone Number</Label>
-            <Input id="phoneNumber" {...register("phoneNumber")} />
-            {errors.phoneNumber && <p className="text-red-500 text-sm">{errors.phoneNumber.message}</p>}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="amount">Amount (KES)</Label>
-            <Input id="amount" {...register("amount")} />
-            {errors.amount && <p className="text-red-500 text-sm">{errors.amount.message}</p>}
-          </div>
-        </form>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Product</TableHead>
+              <TableHead>Quantity</TableHead>
+              <TableHead>Price</TableHead>
+              <TableHead>Total</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {cart.map((item) => (
+              <TableRow key={item.id}>
+                <TableCell>{item.name}</TableCell>
+                <TableCell>{item.quantity}</TableCell>
+                <TableCell>KES {item.price.toFixed(2)}</TableCell>
+                <TableCell>KES {(item.price * item.quantity).toFixed(2)}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+        <div className="mt-4 text-right">
+          <p className="text-lg font-bold">Total: KES {total.toFixed(2)}</p>
+        </div>
+        <div className="mt-6">
+          <label htmlFor="mpesa-number" className="block text-sm font-medium text-gray-700">
+            M-Pesa Number
+          </label>
+          <Input
+            type="tel"
+            id="mpesa-number"
+            placeholder="Enter your M-Pesa number"
+            value={mpesaNumber}
+            onChange={(e) => setMpesaNumber(e.target.value)}
+            className="mt-1"
+          />
+        </div>
       </CardContent>
       <CardFooter>
-        <Button type="submit" className="w-full gradient-bg" disabled={isLoading} onClick={handleSubmit(onSubmit)}>
-          {isLoading ? "Processing Payment..." : "Pay with M-Pesa"}
+        <Button onClick={handleCheckout} className="w-full">
+          Pay with M-Pesa
         </Button>
       </CardFooter>
     </Card>
