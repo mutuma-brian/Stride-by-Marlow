@@ -33,7 +33,7 @@
     </form>
     <div class="mt-4 text-sm text-gray-600">
       <p>M-Pesa Paybill: 714777</p>
-      <p>Account Number: Your Order Number</p>
+      <p>Account Number: 0714470576</p>
     </div>
   </div>
 </template>
