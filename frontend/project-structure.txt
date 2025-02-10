@@ -1,0 +1,47 @@
+stride-by-marlow-frontend/
+├── public/
+│   ├── favicon.ico
+│   └── index.html
+├── src/
+│   ├── api/
+│   │   ├── auth.js
+│   │   ├── products.js
+│   │   ├── orders.js
+│   │   └── mpesa.js
+│   ├── assets/
+│   │   └── logo.png
+│   ├── components/
+│   │   ├── Navbar.vue
+│   │   ├── Footer.vue
+│   │   ├── Hero.vue
+│   │   ├── FeaturedProducts.vue
+│   │   ├── ProductCard.vue
+│   │   ├── About.vue
+│   │   ├── Newsletter.vue
+│   │   └── PaymentMPesa.vue
+│   ├── router/
+│   │   └── index.js
+│   ├── store/
+│   │   ├── auth.js
+│   │   └── cart.js
+│   ├── views/
+│   │   ├── Home.vue
+│   │   ├── Shop.vue
+│   │   ├── Product.vue
+│   │   ├── Cart.vue
+│   │   ├── Checkout.vue
+│   │   ├── About.vue
+│   │   ├── Contact.vue
+│   │   ├── FAQ.vue
+│   │   ├── Login.vue
+│   │   ├── Register.vue
+│   │   └── Profile.vue
+│   ├── App.vue
+│   └── main.js
+├── .env
+├── .gitignore
+├── package.json
+├── README.md
+├── tailwind.config.js
+└── vite.config.js
+

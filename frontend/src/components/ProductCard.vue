@@ -1,31 +1,33 @@
 <template>
-  <v-card>
-    <v-img :src="product.image" height="200px" cover></v-img>
-    <v-card-title>{{ product.title }}</v-card-title>
-    <v-card-text>
-      <div class="text-h6 mb-2">
-        KES {{ product.price.toFixed(2) }}
+  <div class="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:scale-105">
+    <router-link :to="{ name: 'Product', params: { id: product.id } }">
+      <div class="relative h-48 w-full">
+        <img
+          :src="product.image || '/placeholder.svg'"
+          :alt="product.name"
+          class="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+        />
       </div>
-    </v-card-text>
-    <v-card-actions>
-      <v-btn icon @click="decrementQuantity">
-        <v-icon>mdi-minus</v-icon>
-      </v-btn>
-      <span class="mx-2">{{ quantity }}</span>
-      <v-btn icon @click="incrementQuantity">
-        <v-icon>mdi-plus</v-icon>
-      </v-btn>
-      <v-spacer></v-spacer>
-      <v-btn color="primary" @click="addToCart">
-        Add to Cart
-      </v-btn>
-    </v-card-actions>
-  </v-card>
+      <div class="p-4 flex flex-col justify-between flex-grow">
+        <div>
+          <h3 class="text-lg font-semibold mb-2">{{ product.name }}</h3>
+          <p class="text-gray-600 mb-2">KES {{ product.price.toLocaleString() }}</p>
+        </div>
+      </div>
+    </router-link>
+    <button
+      @click="addToCart"
+      class="w-full bg-orange-500 text-white py-2 px-4 rounded hover:bg-orange-600 transition-colors duration-300"
+    >
+      <i class="fas fa-shopping-cart mr-2"></i> Add to Cart
+    </button>
+  </div>
 </template>
 
 <script>
-import { ref } from 'vue'
-import { useUserStore } from '../stores/user'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/store/auth'
+import { useCartStore } from '@/store/cart'
 
 export default {
   name: 'ProductCard',
@@ -36,30 +38,22 @@ export default {
     }
   },
   setup(props) {
-    const userStore = useUserStore()
-    const quantity = ref(1)
+    const router = useRouter()
+    const authStore = useAuthStore()
+    const cartStore = useCartStore()
 
-    const incrementQuantity = () => {
-      quantity.value++
-    }
-
-    const decrementQuantity = () => {
-      if (quantity.value > 1) {
-        quantity.value--
+    const addToCart = () => {
+      if (!authStore.isLoggedIn) {
+        router.push('/login')
+      } else {
+        cartStore.addToCart(props.product)
       }
     }
 
-    const addToCart = () => {
-      userStore.addToCart({ ...props.product, quantity: quantity.value })
-      quantity.value = 1
-    }
-
     return {
-      quantity,
-      incrementQuantity,
-      decrementQuantity,
       addToCart
     }
   }
 }
 </script>
+

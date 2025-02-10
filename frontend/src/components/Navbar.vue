@@ -1,156 +1,192 @@
 <template>
-  <v-app-bar color="primary" dark app height="80">
-    <v-container class="d-flex align-center">
-      <v-toolbar-title class="d-flex align-center">
-        <v-img src="/logo.png" max-height="60" max-width="60" class="mr-2"></v-img>
-        <router-link to="/" class="text-decoration-none text-white text-h5">
-          STRIDE BY MARLOW
+  <nav :class="[
+    'fixed w-full z-50 transition-all duration-300',
+    isScrolled ? 'bg-white/80 backdrop-blur-sm shadow-md py-2' : 'bg-transparent py-4'
+  ]">
+    <div class="container mx-auto px-4">
+      <div class="flex justify-between items-center">
+        <router-link to="/" class="flex items-center space-x-2">
+          <div class="w-10 h-10 mr-2 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold text-xl">
+            SM
+          </div>
+          <span class="text-3xl font-semibold text-orange-500">STRIDE BY MARLOW</span>
         </router-link>
-      </v-toolbar-title>
-
-      <v-spacer></v-spacer>
-
-      <v-text-field
-        v-model="searchQuery"
-        placeholder="Search products"
-        prepend-inner-icon="mdi-magnify"
-        class="mt-7 hidden-sm-and-down"
-        hide-details
-        style="max-width: 300px;"
-        @input="updateSuggestions"
-      ></v-text-field>
-
-      <v-menu v-model="showSuggestions" :close-on-content-click="false" location="bottom">
-        <v-list v-if="filteredSuggestions.length > 0">
-          <v-list-item v-for="suggestion in filteredSuggestions" :key="suggestion" @click="selectSuggestion(suggestion)">
-            <v-list-item-title>{{ suggestion }}</v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-menu>
-
-      <v-spacer></v-spacer>
-
-      <div class="hidden-sm-and-down">
-        <v-btn v-for="item in navItems" :key="item.name" :to="item.href" text class="mx-2">
-          {{ item.name }}
-        </v-btn>
+        <div class="hidden md:flex space-x-8 items-center">
+          <router-link
+            v-for="item in navItems"
+            :key="item.name"
+            :to="item.href"
+            class="text-lg font-bold transition-colors duration-300 text-orange-500 hover:text-orange-600"
+          >
+            {{ item.name }}
+          </router-link>
+        </div>
+        <div class="hidden md:flex items-center space-x-4">
+          <button v-if="isLoggedIn" @click="handleCartClick" class="text-orange-500 hover:text-orange-600 transition-colors duration-300">
+            <i class="fas fa-shopping-cart text-2xl"></i>
+          </button>
+          <template v-if="isLoggedIn">
+            <router-link to="/profile">
+              <button :class="[
+                'bg-gradient-to-r from-orange-500 via-white to-orange-500 text-orange-600 hover:from-orange-600 hover:via-white hover:to-orange-600 transition-all duration-300',
+                !isScrolled && 'bg-white/10 backdrop-blur-sm hover:bg-white/20',
+                'hover:scale-105 px-4 py-2 rounded'
+              ]">
+                Profile
+              </button>
+            </router-link>
+          </template>
+          <template v-else>
+            <router-link to="/login">
+              <button :class="[
+                'bg-orange-500 text-white hover:bg-orange-600 transition-all duration-300',
+                !isScrolled && 'bg-white/10 backdrop-blur-sm hover:bg-white/20',
+                'hover:scale-105 px-4 py-2 rounded'
+              ]">
+                Login
+              </button>
+            </router-link>
+            <router-link to="/register">
+              <button :class="[
+                'bg-orange-500 text-white hover:bg-orange-600 transition-all duration-300',
+                !isScrolled && 'bg-white/10 backdrop-blur-sm hover:bg-white/20',
+                'hover:scale-105 px-4 py-2 rounded'
+              ]">
+                Register
+              </button>
+            </router-link>
+          </template>
+        </div>
+        <button
+          class="md:hidden text-orange-500 transition-transform duration-300 hover:scale-110"
+          @click="toggleMobileMenu"
+        >
+          <i :class="['fas', isOpen ? 'fa-times' : 'fa-bars', 'text-2xl']"></i>
+        </button>
       </div>
-
-      <v-menu v-if="isLoggedIn" offset-y>
-        <template v-slot:activator="{ props }">
-          <v-btn icon v-bind="props" class="ml-2">
-            <v-avatar color="primary" size="40">
-              <v-img v-if="user.profilePicture" :src="user.profilePicture" alt="Profile Picture"></v-img>
-              <span v-else class="text-h6 white--text">{{ user.name.charAt(0) }}</span>
-            </v-avatar>
-          </v-btn>
-        </template>
-        <v-list>
-          <v-list-item to="/profile">
-            <v-list-item-title>Profile</v-list-item-title>
-          </v-list-item>
-          <v-list-item @click="logout">
-            <v-list-item-title>Logout</v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-menu>
-
-      <template v-else>
-        <v-btn to="/login" text class="hidden-sm-and-down">Login</v-btn>
-        <v-btn to="/register" text class="hidden-sm-and-down">Register</v-btn>
-      </template>
-
-      <v-btn icon @click="goToCart" class="ml-2">
-        <v-badge :content="cartItemCount" :value="cartItemCount" color="red" overlap>
-          <v-icon>mdi-cart</v-icon>
-        </v-badge>
-      </v-btn>
-
-      <v-app-bar-nav-icon class="hidden-md-and-up" @click="drawer = !drawer"></v-app-bar-nav-icon>
-    </v-container>
-  </v-app-bar>
-
+    </div>
+    <!-- Mobile menu -->
+    <transition
+      enter-active-class="transition duration-300 ease-out"
+      enter-from-class="transform -translate-y-full opacity-0"
+      enter-to-class="transform translate-y-0 opacity-100"
+      leave-active-class="transition duration-300 ease-in"
+      leave-from-class="transform translate-y-0 opacity-100"
+      leave-to-class="transform -translate-y-full opacity-0"
+    >
+      <div v-if="isOpen" class="md:hidden absolute top-full left-0 right-0 bg-white shadow-md overflow-hidden">
+        <div class="container mx-auto px-4 py-4 flex flex-col space-y-4">
+          <router-link
+            v-for="item in navItems"
+            :key="item.name"
+            :to="item.href"
+            class="text-orange-500 hover:text-orange-600 transition-colors duration-300 block text-lg font-bold"
+            @click="isOpen = false"
+          >
+            {{ item.name }}
+          </router-link>
+          <button
+            class="bg-gradient-to-r from-orange-500 via-white to-orange-500 text-orange-600 hover:from-orange-600 hover:via-white hover:to-orange-600 transition-colors w-full py-2 rounded"
+            @click="handleMobileCartClick"
+          >
+            Cart
+          </button>
+          <template v-if="isLoggedIn">
+            <router-link to="/profile">
+              <button
+                class="bg-gradient-to-r from-orange-500 via-white to-orange-500 text-orange-600 hover:from-orange-600 hover:via-white hover:to-orange-600 transition-colors w-full py-2 rounded"
+                @click="isOpen = false"
+              >
+                Profile
+              </button>
+            </router-link>
+          </template>
+          <template v-else>
+            <router-link to="/login">
+              <button
+                class="bg-gradient-to-r from-orange-500 via-white to-orange-500 text-orange-600 hover:from-orange-600 hover:via-white hover:to-orange-600 transition-colors w-full py-2 rounded"
+                @click="isOpen = false"
+              >
+                Login
+              </button>
+            </router-link>
+            <router-link to="/register">
+              <button
+                class="bg-gradient-to-r from-orange-500 via-white to-orange-500 text-orange-600 hover:from-orange-600 hover:via-white hover:to-orange-600 transition-colors w-full py-2 rounded"
+                @click="isOpen = false"
+              >
+                Register
+              </button>
+            </router-link>
+          </template>
+        </div>
+      </div>
+    </transition>
+  </nav>
 </template>
 
 <script>
-import { ref, computed } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useUserStore } from '../stores/user'
-import { useProductStore } from '../stores/products'
+import { useAuthStore } from '@/store/auth'
+import { storeToRefs } from 'pinia'
 
 export default {
   name: 'Navbar',
   setup() {
+    const isOpen = ref(false)
+    const isScrolled = ref(false)
     const router = useRouter()
-    const userStore = useUserStore()
-    const productStore = useProductStore()
-
-    const drawer = ref(false)
-    const searchQuery = ref('')
-    const showSuggestions = ref(false)
+    const authStore = useAuthStore()
+    const { isLoggedIn } = storeToRefs(authStore)
 
     const navItems = [
-      { name: 'Home', href: '/' },
-      { name: 'Shop', href: '/shop' },
-      { name: 'About', href: '/about' },
-      { name: 'FAQ', href: '/faq' },
+      { name: "Home", href: "/" },
+      { name: "Shop", href: "/shop" },
+      { name: "About", href: "/about" },
+      { name: "Contact", href: "/contact" },
+      { name: "FAQ", href: "/faq" },
     ]
 
-    const isLoggedIn = computed(() => userStore.isLoggedIn)
-    const user = computed(() => userStore.user)
-    const cartItemCount = computed(() => userStore.cart.reduce((total, item) => total + item.quantity, 0))
-
-    const logout = () => {
-      userStore.logout()
-      router.push('/')
+    const handleScroll = () => {
+      isScrolled.value = window.scrollY > 10
     }
 
-    const goToCart = () => {
-      if (isLoggedIn.value) {
-        router.push('/cart')
-      } else {
+    onMounted(() => {
+      window.addEventListener('scroll', handleScroll)
+    })
+
+    onUnmounted(() => {
+      window.removeEventListener('scroll', handleScroll)
+    })
+
+    const toggleMobileMenu = () => {
+      isOpen.value = !isOpen.value
+    }
+
+    const handleCartClick = () => {
+      if (!isLoggedIn.value) {
         router.push('/login')
+      } else {
+        router.push('/cart')
       }
     }
 
-    const updateSuggestions = () => {
-      showSuggestions.value = searchQuery.value.length > 0
-    }
-
-    const filteredSuggestions = computed(() => {
-      return productStore.products
-        .filter(product => product.title.toLowerCase().includes(searchQuery.value.toLowerCase()))
-        .map(product => product.title)
-        .slice(0, 5)
-    })
-
-    const selectSuggestion = (suggestion) => {
-      searchQuery.value = suggestion
-      showSuggestions.value = false
-      // Implement search functionality here
-      router.push({ name: 'shop', query: { search: suggestion } })
+    const handleMobileCartClick = () => {
+      isOpen.value = false
+      handleCartClick()
     }
 
     return {
-      drawer,
-      navItems,
+      isOpen,
+      isScrolled,
       isLoggedIn,
-      user,
-      cartItemCount,
-      logout,
-      goToCart,
-      searchQuery,
-      showSuggestions,
-      filteredSuggestions,
-      updateSuggestions,
-      selectSuggestion
+      navItems,
+      toggleMobileMenu,
+      handleCartClick,
+      handleMobileCartClick
     }
   }
 }
 </script>
 
-<style scoped>
-.v-app-bar {
-  background-color: #FFAA33 !important;
-}
-</style>
