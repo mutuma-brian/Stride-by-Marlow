@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { Navbar } from "@/components/navbar"
+import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
