@@ -1,0 +1,75 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+.out/
+.next/
+.serverless/
+.vuepress/dist/
+.svelte-kit/
+__sapper__/
+
+# Environment variables (CRITICAL to exclude)
+.env
+.env.local
+.env.development.local
+.env.production.local
+.env.test.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+debug.log
+logs/
+
+# Database-related (MongoDB, SQLite, etc.)
+*.sqlite
+*.db
+*.ns
+*.0
+*.lock
+mongod.log
+/data/db/
+mongod.conf
+dump.rdb
+/mongodump/
+
+# Cache files
+.cache/
+.nyc_output/
+.jest/
+.parcel-cache/
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*.swo
+*.swn
+*.bak
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Testing & Coverage
+/coverage/
+
+# Optional framework-specific exclusions
+.vercel/
+.netlify/
+
+# MPesa-related sensitive files (if applicable)
+mpesa_credentials.json
+mpesa_certificates/
+mpesa_logs/
