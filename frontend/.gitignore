@@ -11,7 +11,7 @@ build/
 .serverless/
 .vuepress/dist/
 .svelte-kit/
-__sapper__/
+__sapper__/ 
 
 # Environment variables (CRITICAL to exclude)
 .env
@@ -66,10 +66,12 @@ Thumbs.db
 /coverage/
 
 # Optional framework-specific exclusions
-.vercel/
 .netlify/
 
 # MPesa-related sensitive files (if applicable)
 mpesa_credentials.json
 mpesa_certificates/
 mpesa_logs/
+
+# Make sure Vercel's folder is not ignored
+!.vercel/
