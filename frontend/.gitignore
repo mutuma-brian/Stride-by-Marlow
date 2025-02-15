@@ -75,3 +75,5 @@ mpesa_logs/
 
 # Make sure Vercel's folder is not ignored
 !.vercel/
+
+.vercel
