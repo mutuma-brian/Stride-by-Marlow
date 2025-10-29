@@ -6,6 +6,7 @@ import { ContactInfo } from "@/components/contact-info"
 export const metadata: Metadata = {
   title: "Contact Us | Stride by Marlow",
   description: "Get in touch with Stride by Marlow",
+  
 }
 
 export default function ContactPage() {
