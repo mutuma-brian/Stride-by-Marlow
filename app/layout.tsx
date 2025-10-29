@@ -1,36 +1,31 @@
-import type React from "react"
-import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
-import { Analytics } from "@vercel/analytics/next"
+import { Inter } from "next/font/google"
 import "./globals.css"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
-import { CartProvider } from "@/lib/cart-context"
+import type { Metadata } from "next"
+import { ThemeProvider } from "@/components/theme-provider"
+import { AuthProvider } from "@/components/auth-provider"
+import type React from "react"
 
-const _geist = Geist({ subsets: ["latin"] })
-const _geistMono = Geist_Mono({ subsets: ["latin"] })
+const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Stride by Marlow - Premium Sneaker Collection",
-  description: "Discover the perfect blend of comfort and fashion with our premium sneaker collection.",
-  generator: "v0.app",
+  title: "Stride by Marlow | Premium Sneakers",
+  description: "Discover the latest and greatest in sneaker fashion at Stride by Marlow.",
+  generator: "v0.dev",
 }
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   return (
     <html lang="en">
-      <body className="font-sans antialiased">
-        <CartProvider>
-          <Header />
-          <main className="min-h-screen">{children}</main>
-          <Footer />
-          <Analytics />
-        </CartProvider>
+      <body className={inter.className}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <AuthProvider>{children}</AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   )
 }
+import "./globals.css"
